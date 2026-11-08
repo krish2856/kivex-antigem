@@ -1,4 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
-<inset xmlns:android="http://schemas.android.com/apk/res/android"
-    android:drawable="@drawable/splash_logo"
-    android:inset="10dp" />
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Tech Boundary Ring -->
+    <path
+        android:strokeColor="#1E293B"
+        android:strokeWidth="1.5"
+        android:pathData="M 54,26 A 28,28 0 1,1 53.9,26" />
+
+    <!-- Cyan Arc Accent -->
+    <path
+        android:strokeColor="#00E5FF"
+        android:strokeWidth="2.5"
+        android:strokeLineCap="round"
+        android:pathData="M 34,68 A 28,28 0 0,1 68,34" />
+
+    <!-- Amber Gem Arc Accent -->
+    <path
+        android:strokeColor="#F59E0B"
+        android:strokeWidth="2.5"
+        android:strokeLineCap="round"
+        android:pathData="M 74,54 A 28,28 0 0,1 64,74" />
+
+    <!-- Left Stem: Bevel Facet -->
+    <path
+        android:fillColor="#0284C7"
+        android:pathData="M 37,39 L 42,36 L 42,72 L 37,69 Z" />
+
+    <!-- Left Stem: Main Front Facet -->
+    <path
+        android:fillColor="#00C8FF"
+        android:pathData="M 42,36 L 47,39 L 47,69 L 42,72 Z" />
+
+    <!-- Left Stem Highlight -->
+    <path
+        android:strokeColor="#BAE6FD"
+        android:strokeWidth="0.8"
+        android:pathData="M 42,36 L 42,72" />
+
+    <!-- Upper Arm: Violet/Indigo Top Bevel -->
+    <path
+        android:fillColor="#818CF8"
+        android:pathData="M 64,36 L 60,33 L 51,45 L 48,51 Z" />
+
+    <!-- Upper Arm: Cyan/Sky Blue Main Face -->
+    <path
+        android:fillColor="#38BDF8"
+        android:pathData="M 48,51 L 64,36 L 69,40 L 53,57 Z" />
+
+    <!-- Upper Arm: Dark Cyan Under Bevel -->
+    <path
+        android:fillColor="#0E7490"
+        android:pathData="M 69,40 L 65,44 L 53,57 Z" />
+
+    <!-- Lower Arm: Coral/Ruby Bottom Bevel -->
+    <path
+        android:fillColor="#E11D48"
+        android:pathData="M 65,72 L 61,75 L 50,59 L 50,54 Z" />
+
+    <!-- Lower Arm: Amber/Gold Main Face -->
+    <path
+        android:fillColor="#F59E0B"
+        android:pathData="M 50,54 L 54,50 L 70,68 L 65,72 Z" />
+
+    <!-- Lower Arm: Warm Highlight -->
+    <path
+        android:fillColor="#FBBF24"
+        android:pathData="M 54,50 L 58,50 L 70,64 L 70,68 Z" />
+
+    <!-- Central Diamond Gem Core -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M 51,54 L 54,51 L 57,54 L 54,57 Z" />
+
+</vector>
