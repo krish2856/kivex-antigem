@@ -29,8 +29,9 @@ import (
 	"runtime"
 	"strings"
 	"sync"
-	"syscall"
 	"time"
+
+	"gemini-server/pkg/procutil"
 )
 
 // startTimeout: how long a cold `opencode serve` may take to answer (it is a ~250 MB Bun binary; a phone is slow).
@@ -333,7 +334,7 @@ func (m *Manager) start() error {
 		"OPENCODE_CONFIG="+m.configPath(),
 		"OPENCODE_DISABLE_AUTOUPDATE=1",
 	)
-	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+	procutil.SetProcessGroup(cmd)
 	out, err := cmd.StdoutPipe()
 	if err != nil {
 		return err
@@ -390,14 +391,7 @@ func (m *Manager) Stop() {
 	if cmd == nil || cmd.Process == nil {
 		return
 	}
-	pgid := cmd.Process.Pid
-	_ = syscall.Kill(-pgid, syscall.SIGTERM)
-	select {
-	case <-exited:
-	case <-time.After(3 * time.Second):
-		_ = syscall.Kill(-pgid, syscall.SIGKILL)
-		<-exited
-	}
+	procutil.KillProcessTree(cmd, exited)
 }
 
 // StopAll is called when the bridge shuts down.

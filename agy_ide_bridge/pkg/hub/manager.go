@@ -13,14 +13,15 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"strconv"
 	"strings"
 	"sync"
 	"sync/atomic"
-	"syscall"
 	"time"
 
 	"gemini-server/pkg/config"
+	"gemini-server/pkg/procutil"
 	"gemini-server/pkg/security"
 )
 
@@ -466,9 +467,14 @@ func (m *HubManager) Start() error {
 	ctx, cancel := context.WithCancel(context.Background())
 	m.cancel = cancel
 
-	shArgs := append([]string{"-c", `exec "$0" "$@"`, m.AgyBinPath}, args...)
-	cmd := exec.CommandContext(ctx, "sh", shArgs...)
-	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+	var cmd *exec.Cmd
+	if runtime.GOOS == "windows" {
+		cmd = exec.CommandContext(ctx, m.AgyBinPath, args...)
+	} else {
+		shArgs := append([]string{"-c", `exec "$0" "$@"`, m.AgyBinPath}, args...)
+		cmd = exec.CommandContext(ctx, "sh", shArgs...)
+	}
+	procutil.SetProcessGroup(cmd)
 
 	// Set required environment variables for agy hub mode dynamically across all platforms
 	home, _ := os.UserHomeDir()
@@ -628,33 +634,8 @@ func (m *HubManager) Stop() {
 		pid := cmd.Process.Pid
 		fmt.Printf("🛑 Stopping AGY Hub process tree (PID %d)...\n", pid)
 
-		// Terminate the entire process group
-		pgid, err := syscall.Getpgid(pid)
-		if err == nil {
-			_ = syscall.Kill(-pgid, syscall.SIGTERM)
-		} else {
-			_ = cmd.Process.Signal(syscall.SIGTERM)
-		}
-
-		stopped := false
-		if doneChan != nil {
-			select {
-			case <-doneChan:
-				stopped = true
-				fmt.Println("✅ AGY Hub stopped cleanly.")
-			case <-time.After(1000 * time.Millisecond):
-			}
-		}
-
-		if !stopped {
-			if pgid > 0 {
-				_ = syscall.Kill(-pgid, syscall.SIGKILL)
-			}
-			_ = cmd.Process.Kill()
-			_ = exec.Command("pkill", "-9", "-P", fmt.Sprintf("%d", pid)).Run()
-			_ = exec.Command("pkill", "-9", "-f", "agy --hub").Run()
-			fmt.Println("⚠️  AGY Hub force terminated.")
-		}
+		procutil.KillProcessTree(cmd, doneChan)
+		fmt.Println("✅ AGY Hub stopped.")
 
 		// Auto-unpatch binary back to standard header once process has exited and lock is released
 		if m.AgyBinPath != "" {

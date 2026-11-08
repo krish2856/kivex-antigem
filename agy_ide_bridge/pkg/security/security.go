@@ -13,7 +13,6 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
-	"syscall"
 	"time"
 )
 
@@ -120,9 +119,9 @@ func PatchAgyHeader(binaryPath string, token string) (string, time.Duration, err
 	defer file.Close()
 
 	// Memory-mapped in-place scan and replace
-	data, mmapErr := syscall.Mmap(int(file.Fd()), 0, fileSize, syscall.PROT_READ|syscall.PROT_WRITE, syscall.MAP_SHARED)
+	data, mmapErr := mmapFile(int(file.Fd()), fileSize)
 	if mmapErr == nil {
-		defer syscall.Munmap(data)
+		defer munmapFile(data)
 
 		var oldHeader []byte
 		pos := 0
@@ -249,9 +248,9 @@ func UnpatchAgyHeader(binaryPath string) (string, time.Duration, error) {
 	defer file.Close()
 
 	// Memory-mapped in-place scan and replace
-	data, mmapErr := syscall.Mmap(int(file.Fd()), 0, fileSize, syscall.PROT_READ|syscall.PROT_WRITE, syscall.MAP_SHARED)
+	data, mmapErr := mmapFile(int(file.Fd()), fileSize)
 	if mmapErr == nil {
-		defer syscall.Munmap(data)
+		defer munmapFile(data)
 
 		replacedCount := 0
 		pos := 0

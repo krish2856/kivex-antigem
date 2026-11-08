@@ -20,7 +20,6 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-	"syscall"
 	"time"
 )
 
@@ -458,13 +457,8 @@ type fsOpResult struct {
 func fsMove(src, dst string) error {
 	if err := os.Rename(src, dst); err == nil {
 		return nil
-	} else {
-		var linkErr *os.LinkError
-		if !errors.As(err, &linkErr) || !errors.Is(linkErr.Err, syscall.EXDEV) {
-			return err
-		}
 	}
-	// different file systems (e.g. app storage -> shared storage): copy, then remove the original
+	// different file systems (e.g. cross-device move): copy, then remove the original
 	if err := copyTree(src, dst); err != nil {
 		_ = os.RemoveAll(dst)
 		return err
